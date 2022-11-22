@@ -1,123 +1,212 @@
-#include <iostream>
-#include <cstdlib>
-#include <fstream>
-#include <stdlib.h>
-#include <cstring>
-using namespace std;
+#include<stdio.h>
+#include<iostream>
+#include<string.h>
+#include<locale.h>
 
-struct pessoa{
-  string email;
-  string nome;
-  string senha;
+struct VIAGEM
+{
+	int id;
+	char nome[20];
+	float valor;
+	float preco_custo;
 };
+VIAGEM viajar;
+int tamanho(FILE *);
+void cadastrar_viagem(FILE *);
+void consultar_viagem(FILE *);
+void geraarqtxt(FILE *);
+void excluir(FILE *);
+int pegar_id(FILE *);
 
-int main(int argc, char** argv){
-  int choice;
-  int x = 0;
-  setlocale(LC_ALL,"");
-  pessoa *v[20];
-  for(int i = 0; i < 21; i++){
-    v[i] = NULL;
-  }
-  inicio:
-  cout << "\nBem Vindo(a) ao sistema de cadastro!\nSe vocÍ deseja cadastrar alguem, digite: 0\nSe vocÍ deseja consultar um cadastro pelo nome, digite: 1\nSe vocÍ deseja excluir um cadastro pelo nome, digite: 2\nSe vocÍ deseja gerar um arquivo texto dos dados cadastrados, digite 3\nSe vocÍ deseja encerrar o programa, digite 4\n(VocÍ pode cadastrar atÈ 20 pessoas)\n\n";
-  cin >> choice;
-  while(choice != 4){
-    while(choice > 6 && choice < 0){
-      cout << "\nPor favor digite um valor v·lido\n";
-      cin >> choice;
-    }
-    if(choice == 0){
-      v[x] = new pessoa;
-      cout << "\n Digite o nome: ";
-      cin >> v[x]->nome;
-      
-      cout << "\n Digite o email: ";
-      cin >> v[x]->email;
-     
-      cout << "\n Digite a senha: ";
-      cin >> v[x]->senha;
-      cout << "\n";
-      x++;
-      cout << "\n Se deseja cadastrar outra pessoa digite: 0";
-      cout << "\n Se deseja voltar ao inicio digite: 5\n\n";
-      cin >> choice;
-      if(choice == 5){
-        goto inicio;
-      }
-      
-    }
-    else if(choice == 1){
-       string test;
-       cout << "\n  Digite o nome da pessoa que vocÍ deseja procurar"<< endl;
-       cin >> test;
-      for(int i = 0; i < x; i++){
-        if(test == v[i]->nome){
-          cout << "\n As informaÁıes cadastradas s„o:\nNome: " << v[i]->nome << "\nEmail: " << v[i]->email << "\n Senha: " << v[i]->senha << endl;
-        }
-        else
-          cout << "\n N„o foi possÌvel encontrar a pessoa cadastrada" << endl;
-      }
-      cout << "\n Se deseja encontrar outra pessoa digite: 1";
-      cout << "\n Se deseja voltar ao Ìnicio digite: 5\n\n";
-      cin >> choice;
-      if(choice == 5){
-        goto inicio;
-      }
-    }
-    else if(choice == 2){
-    string test;
-    pessoa *aux;
-      for(int q = 0; q < x; q++){
-       cout << v[q]->nome << " " << v[q]->email << " " << v[q]->senha << endl;  
-      }
-       cout << "\n Digite o nome da pessoa que voce deseja excluir: "<< endl;
-       cin >> test;
-      for(int i = 0; i < x; i++){
-        if(test == v[i]->nome){
-          cout << "\n A pessoa foi exclu√≠da com sucesso"<< endl;
-          if (i == (x-1)){
-            v[i] = NULL;
-          }else{
-            aux = v[i]; 
-            v[i] = v[x-1];
-            v[x-1] = NULL;          
-          }      
-        }
-        else
-          cout << "\n N„o foi poss√≠vel encontrar a pessoa cadastrada" << endl;
-      }
-      for(int q = 0; q < x; q++){
-       cout << v[q]->nome << " " << v[q]->email << " " << v[q]->senha << endl;  
-      }
-      cout << "\n Se deseja excluir outra pessoa digite: 2";
-      cout << "\n Se deseja voltar ao inicio digite: 5\n\n";
-      cin >> choice;
-      if(choice == 5){
-        goto inicio;
-      }
-    }
-    else if(choice == 3){
-      cout << "\n Seu arquivo foi criado" << endl;
-      ofstream myfile("Cadastros.txt");
-      if(myfile.is_open()){
-          myfile << "Nome/Email/Senha" << endl;
-        for(int i = 0; i < x; i++){
-          myfile << v[i]->nome << " ";
-          myfile << v[i]->email << " ";
-          myfile << v[i]->senha << endl;
-        }
-      }
-       myfile.close();
-        
-      
-      cout << "\n Se deseja recriar o arquivo digite: 3";
-      cout << "\n Se deseja voltar ao inicio digite: 5\n\n";
-      cin >> choice;
-      if(choice == 5){
-        goto inicio;
-      }
-    }
-    }
- return 0;
+int main()
+{
+	int op;
+	FILE *arq;
+	setlocale(LC_ALL,"");
+
+	if ((arq = fopen("dados.dat", "rb+")) == NULL)
+	{
+		if ((arq = fopen("dados.dat", "wb+")) == NULL)
+		{
+			printf("Falha ao abrir o arquivo!\n");
+			system("pause");
+		}
+	}
+		do
+		{
+			if(op <= 0 || op > 5){
+				printf("Op√ß√£o inv√°lida !\n");
+				system("pause");
+			}
+			
+			system("CLS");
+			printf("\n======= Cadastro de Plano de Viagens ======= \n");
+			printf("1 == Cadastro de viagens\n");
+			printf("2 == Consultar por id\n");
+			printf("3 == Gerar arquivo\n");
+			printf("4 == Excluir registro\n");
+			printf("5 == Sair\n");
+			printf("Opcao:");
+			scanf("%d", &op);
+			switch (op)
+			{
+			case 1:
+				cadastrar_viagem(arq);
+				break;
+			case 2:
+				consultar_viagem(arq);
+				break;
+			case 3:
+			     geraarqtxt(arq);
+				break;
+			case 4:
+				excluir(arq); 
+				break;
+	
+			case 5: fclose(arq);
+			}
+		} while (op != 5);
+	}
+
+
+	
+
+void cadastrar_viagem(FILE *arq)
+{
+	int i = pegar_id(arq);
+  	viajar.id = i;
+	char confirma;
+	system("cls");
+	printf("Cadastrando nova viagem:\n");
+	printf("\nDigite o nome do local da viagem:");
+	scanf("%s",&viajar.nome);
+	printf("Valor da passagem:");
+	scanf("%f",&viajar.valor);
+	printf("Pre√ßo custo da viagem:");
+	scanf("%f",&viajar.preco_custo);
+	printf("O id da sua venda √©: %i",viajar.id);
+	printf("\nConfirma <s/n>:");
+	fflush(stdin);
+	scanf("%c", &confirma);
+
+	if (toupper(confirma) == 'S')
+	{
+		printf("\ngravando...\n\n");
+		fseek(arq, 0, SEEK_END);
+		fwrite(&viajar, sizeof(viajar), 1, arq);
+		memset(viajar.nome,0,20);
+		i++;
+
+	}
+	system("pause");
+}
+
+void consultar_viagem(FILE *arq)
+{
+	int id;
+	printf("\nConsultar passagem pelo ID\n");
+	printf("\nInforme o ID:");
+	scanf("%d", &id);
+	if ( id>= 0 )
+  	{
+      fseek(arq, id * sizeof(viajar), SEEK_SET);
+      fread(&viajar, sizeof(viajar),1,arq);
+      if (viajar.id >= 0)
+      {
+        printf("Id da viagem: %i\n",viajar.id);
+        printf("Pa√≠s da viagem: %s\n",viajar.nome);
+        printf("Pre√ßo da viagem: %.2f\n", viajar.valor);
+        printf("Pre√ßo de custo: %.2f\n", viajar.preco_custo);
+        system("pause");
+      }    
+      else
+        printf("Id n√£o encontrado.\n");
+        system("pause");
+  	}
+}
+
+void geraarqtxt(FILE *arq)
+{
+	char nomearq[20];
+	printf("Nome do arquivo texto:");
+	scanf("%s",  &nomearq);
+	strcat(nomearq, ".txt");
+	printf("Criando arquivo \n");
+  	FILE *nome_arquivo = fopen(nomearq, "w");
+	if (!nome_arquivo)
+	{
+		printf("Nao foi possivel criar esse arquivo!\n");
+		system("pause");
+		//return;
+	}
+		printf("\nO arquivo texto foi criado.");
+		int nr;
+		fprintf(nome_arquivo, "Id | Nome/Viagem   Valor      Pre√ßo/Custo \n");
+		for (nr = 0; nr < tamanho(arq); nr++)
+		{
+			
+			fseek(arq, nr * sizeof(VIAGEM), SEEK_SET);
+			fread(&viajar, sizeof(VIAGEM), 1, arq);
+		    if(viajar.id >= 0)
+		    	{
+					fprintf(nome_arquivo, "%i  | ", viajar.id);
+					fprintf(nome_arquivo, "  %s   ", viajar.nome);
+					fprintf(nome_arquivo, "R$%.2f      ", viajar.valor);
+					fprintf(nome_arquivo, "R$%.2f   \n", viajar.preco_custo);
+					fprintf(nome_arquivo, "===|====================================\n");
+		    	}
+		}
+		
+	
+	fclose(nome_arquivo);
+	system("pause");
+}
+
+void excluir(FILE *arq)
+{
+	char confirma;
+	int nr;
+
+	printf("\nInforme o ID da viagem para exclus√£o\n");
+	scanf("%d", &nr);
+	if ((nr <= tamanho(arq)) && (nr>0))
+	{
+		fseek(arq, (nr ) * sizeof(viajar), SEEK_SET);
+		fread(&viajar, sizeof(viajar), 1, arq);
+		if (viajar.id == nr)
+		{
+			printf("\nNome do pa√≠s da viagem:%s", viajar.nome);
+			printf("\nValor da viagem:%.2f", viajar.valor);
+			printf("\nPre√ßo custo da viagem:%.2f\n", viajar.preco_custo);
+			printf("\nConfirma a exclusao: <s/n>\n");
+			getchar();
+			scanf("%c", &confirma);
+
+			if (toupper(confirma) == 'S')
+			{
+				printf("\nexcluindo...\n\n");
+				fseek(arq, (nr) * sizeof(viajar), SEEK_SET);
+				viajar.id = -1;
+				fwrite(&viajar, sizeof(viajar), 1, arq);
+				printf("Viagem cancelada com sucesso!! \n");
+			}
+		}
+	}else
+	{
+		printf("\nNumero de registro invalido!\n");
+		system("pause");
+	}
+	system("pause");
+}
+int tamanho(FILE *arq)
+{
+  fseek(arq, 0, SEEK_END);
+  return ftell(arq) / sizeof(VIAGEM);
+}
+int pegar_id(FILE *arq)
+{
+  int posicao;
+  fseek(arq, 0, SEEK_END);
+  posicao = ftell(arq) / sizeof(viajar);
+  return posicao;
 }
